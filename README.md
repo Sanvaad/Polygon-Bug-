@@ -73,17 +73,22 @@ To see the issue in detail, look at the `testPermit2Vulnerability()` function in
 I have given the corrected version 
 in it i - 
 
--Added a user opt-in system-
-mapping(address => bool) public permit2OptIn;
+1. Added a user opt-in system
 
--Added a function for users to control their own opt-in status:-
+```solidity
+mapping(address => bool) public permit2OptIn;
+```
+
+2. Added a function for users to control their own opt-in status:-
+```solidity
 function setPermit2OptIn(bool enabled) external {
     permit2OptIn[msg.sender] = enabled;
     emit UserPermit2OptInUpdated(msg.sender, enabled);
 }
+```
+3. Modified the allowance function to require explicit user consent:-
 
--Modified the allowance function to require explicit user consent:-
-
+```solidity
 function allowance(address owner, address spender) public view override(ERC20, IERC20) returns (uint256) {
     // Only return max allowance if all conditions are met:
     // 1. Spender is Permit2
@@ -92,22 +97,26 @@ function allowance(address owner, address spender) public view override(ERC20, I
     if (spender == PERMIT2 && permit2Enabled && permit2OptIn[owner]) return type(uint256).max;
     return super.allowance(owner, spender);
 }
+```
 
--Added a new event to track opt-in status changes:-
+4. Added a new event to track opt-in status changes:-
+```solidity
 event UserPermit2OptInUpdated(address indexed user, bool enabled);
+```
 
+5. Updated the version number to reflect the security improvement:-
 
--Updated the version number to reflect the security improvement:-
+```solidity
 function version() external pure returns (string memory) {
     return "1.2.0"; // Version bumped to reflect security enhancement
 }
-
+```
 
 
 
 ## Results
 
-When running the tests, you'll see output like:
+After running the tests, you'll see output like this (below):
 
 ```
 Logs:
